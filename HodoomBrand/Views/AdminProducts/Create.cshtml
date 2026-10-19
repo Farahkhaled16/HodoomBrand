@@ -1,0 +1,16 @@
+﻿@model HodoomBrand.Models.Product
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<div class="container py-5" style="max-width: 860px;">
+    <h2 class="mb-4">Add Product</h2>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <partial name="_ProductForm" model="Model" />
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-burgundy">Save</button>
+            <a asp-action="Index" class="btn btn-outline-burgundy">Cancel</a>
+        </div>
+    </form>
+</div>

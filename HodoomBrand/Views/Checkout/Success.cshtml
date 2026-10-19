@@ -1,0 +1,57 @@
+﻿@model HodoomBrand.Models.Order
+@{
+    ViewData["Title"] = "Order placed";
+}
+
+<div class="container py-5" style="max-width: 720px;">
+    <div class="text-center mb-4">
+        <h1>Thank you!</h1>
+        <p class="lead">Your order <strong>#@Model.Id</strong> has been placed.</p>
+        <p class="text-muted">Pay <strong>@Model.Total.ToString("0.##") EGP</strong> in cash when it arrives.</p>
+    </div>
+
+    <div class="bg-white border p-4">
+        <h5>Delivery details</h5>
+        <div>@Model.CustomerName</div>
+        <div>@Model.Phone</div>
+        <div>@Model.Address, @Model.Governorate</div>
+
+        <hr />
+        @foreach (var i in Model.Items)
+        {
+            <div class="d-flex justify-content-between">
+                <span>
+                    @i.ProductName x@(i.Quantity)
+                    <small class="text-muted">
+                        @if (!string.IsNullOrEmpty(i.Size))
+                        {
+                            <span>@i.Size</span>
+                        }
+                        @if (!string.IsNullOrEmpty(i.Color))
+                        {
+                            <span> / @i.Color</span>
+                        }
+                    </small>
+                </span>
+                <span>@((i.UnitPrice * i.Quantity).ToString("0.##")) EGP</span>
+            </div>
+        }
+        <hr />
+        <div class="d-flex justify-content-between"><span>Shipping</span><span>@Model.ShippingFee.ToString("0.##") EGP</span></div>
+        <div class="d-flex justify-content-between fw-semibold"><span>Total</span><span>@Model.Total.ToString("0.##") EGP</span></div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-burgundy" asp-controller="Shop" asp-action="Index">Continue shopping</a>
+    </div>
+    <div class="text-center mt-3">
+        @if (Model.UserId != null)
+        {
+            <a asp-controller="Orders" asp-action="Details" asp-route-id="@Model.Id">Track this order</a>
+        }
+        else
+        {
+            <p class="small text-muted">You ordered as a guest. Create an account next time to track your orders.</p>
+        }
+    </div>
+</div>

@@ -1,0 +1,114 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Config
+@model HodoomBrand.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    var cart = HodoomBrand.Helpers.CartSession.Get(Context.Session);
+    var shipping = Config.GetValue<decimal>("Store:ShippingFee", 60);
+    var subtotal = cart.Sum(i => i.LineTotal);
+    var total = subtotal + shipping;
+}
+
+<div class="container py-5">
+    <h2 class="mb-4">Checkout</h2>
+
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <form asp-action="Index" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="CustomerName" class="form-label"></label>
+                        <input asp-for="CustomerName" class="form-control" />
+                        <span asp-validation-for="CustomerName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label">Mobile number</label>
+                        <input asp-for="Phone" class="form-control" placeholder="01012345678" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Governorate" class="form-label"></label>
+                        <select asp-for="Governorate" class="form-select">
+                            <option value="">-- Choose governorate --</option>
+                            @foreach (var g in HodoomBrand.Controllers.CheckoutController.Governorates)
+                            {
+                                <option value="@g" selected="@(Model.Governorate == g)">@g</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Governorate" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Address" class="form-label"></label>
+                        <textarea asp-for="Address" class="form-control" rows="3"
+                                  placeholder="Street, building, floor, apartment, landmark"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Notes" class="form-label">Notes (optional)</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-2">Payment</h5>
+                <div class="border bg-white p-3">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="PayOnline" value="false" id="payCod"
+                               checked="@(!Model.PayOnline)" />
+                        <label class="form-check-label" for="payCod">Cash on delivery</label>
+                    </div>
+                    @if ((bool?)ViewBag.OnlineEnabled == true)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="PayOnline" value="true" id="payOnline"
+                                   checked="@Model.PayOnline" />
+                            <label class="form-check-label" for="payOnline">Pay online (card)</label>
+                        </div>
+                    }
+                </div>
+
+                <button type="submit" class="btn btn-burgundy w-100 mt-4">Place order</button>
+            </form>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="bg-white border p-4">
+                <h5 class="mb-3">Order summary</h5>
+                @foreach (var i in cart)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>
+                            @i.Name <span class="text-muted">x@(i.Quantity)</span>
+                            <div class="small text-muted">
+                                @if (!string.IsNullOrEmpty(i.Size))
+                                {
+                                    <span>@i.Size</span>
+                                }
+                                @if (!string.IsNullOrEmpty(i.Color))
+                                {
+                                    <span> / @i.Color</span>
+                                }
+                            </div>
+                        </div>
+                        <div>@i.LineTotal.ToString("0.##") EGP</div>
+                    </div>
+                }
+                <hr />
+                <div class="d-flex justify-content-between"><span>Subtotal</span><span>@subtotal.ToString("0.##") EGP</span></div>
+                <div class="d-flex justify-content-between"><span>Shipping</span><span>@shipping.ToString("0.##") EGP</span></div>
+                <hr />
+                <div class="d-flex justify-content-between fw-semibold fs-5"><span>Total</span><span>@total.ToString("0.##") EGP</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

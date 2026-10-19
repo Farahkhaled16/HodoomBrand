@@ -1,0 +1,66 @@
+﻿@model List<HodoomBrand.Models.Order>
+@using HodoomBrand.Models
+@{
+    ViewData["Title"] = "Orders";
+    OrderStatus? current = ViewBag.Status;
+    var counts = (ViewBag.Counts as Dictionary<OrderStatus, int>) ?? new Dictionary<OrderStatus, int>();
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="m-0">Orders <small class="text-muted fs-6">(@ViewBag.NewCount new)</small></h2>
+        <a class="btn btn-outline-burgundy" asp-controller="AdminProducts" asp-action="Index">Products</a>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a class="btn btn-sm @(current == null ? "btn-burgundy" : "btn-outline-burgundy")" asp-action="Index">All</a>
+        @foreach (OrderStatus s in Enum.GetValues(typeof(OrderStatus)))
+        {
+            var count = counts.TryGetValue(s, out var n) ? n : 0;
+            <a class="btn btn-sm @(current == s ? "btn-burgundy" : "btn-outline-burgundy")"
+               asp-action="Index" asp-route-status="@s">@s (@count)</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="text-muted text-center py-5">No orders here yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle bg-white">
+                <thead>
+                    <tr><th>#</th><th>Date</th><th>Customer</th><th>Governorate</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        <tr>
+                            <td>@o.Id</td>
+                            <td>@o.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                            <td>@o.CustomerName<div class="small text-muted">@o.Phone</div></td>
+                            <td>@o.Governorate</td>
+                            <td>@o.Items.Sum(i => i.Quantity)</td>
+                            <td>@o.Total.ToString("0.##") EGP</td>
+                            <td>
+                                @(o.PaymentMethod == PaymentMethod.Online ? "Online" : "Cash")
+                                <div class="small @(o.PaymentStatus == PaymentStatus.Paid ? "text-success" : "text-muted")">@o.PaymentStatus</div>
+                            </td>
+                            <td>
+                                <span class="badge" style="background:@(o.Status == OrderStatus.New ? "var(--gold)" : o.Status == OrderStatus.Cancelled ? "#999" : "var(--burgundy)");color:@(o.Status == OrderStatus.New ? "var(--burgundy-dark)" : "#fff")">@o.Status</span>
+                                @if (o.CancelledByCustomer)
+                                {
+                                    <div class="small text-muted">by customer</div>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-burgundy" asp-action="Details" asp-route-id="@o.Id">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,34 @@
+﻿@model HodoomBrand.Models.Product
+@{
+    var main = Model.Media.FirstOrDefault(m => m.IsMain)
+               ?? Model.Media.FirstOrDefault(m => m.Type == HodoomBrand.Models.MediaType.Image);
+}
+
+<a asp-controller="Shop" asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none">
+    <div class="product-card">
+        @if (main != null)
+        {
+            <img src="@main.FilePath" alt="@Model.Name" />
+        }
+        else
+        {
+            <div style="aspect-ratio:3/4;background:#eadfd3;"></div>
+        }
+        <div class="info">
+            <div style="color:var(--charcoal)">@Model.Name</div>
+            @if (Model.DiscountPrice.HasValue)
+            {
+                <span class="price">@Model.DiscountPrice.Value.ToString("0.##") EGP</span>
+                <span class="old-price">@Model.Price.ToString("0.##")</span>
+            }
+            else
+            {
+                <span class="price">@Model.Price.ToString("0.##") EGP</span>
+            }
+            @if (Model.StockQuantity <= 0)
+            {
+                <div class="small text-danger">Sold out</div>
+            }
+        </div>
+    </div>
+</a>

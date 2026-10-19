@@ -1,0 +1,68 @@
+﻿@model HodoomBrand.Models.Product
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="container py-5" style="max-width: 860px;">
+    <h2 class="mb-4">Edit Product</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input asp-for="Id" type="hidden" />
+        <partial name="_ProductForm" model="Model" />
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-burgundy">Save changes</button>
+            <a asp-action="Index" class="btn btn-outline-burgundy">Back</a>
+        </div>
+    </form>
+
+    <hr class="my-5" />
+    <h4 class="mb-3">Current images &amp; videos</h4>
+
+    @if (!Model.Media.Any())
+    {
+        <p class="text-muted">Nothing uploaded yet.</p>
+    }
+
+    <div class="row g-3">
+        @foreach (var m in Model.Media)
+        {
+            <div class="col-6 col-md-4">
+                <div class="border bg-white p-2 h-100">
+                    @if (m.Type == HodoomBrand.Models.MediaType.Image)
+                    {
+                        <img src="@m.FilePath" style="width:100%;aspect-ratio:3/4;object-fit:cover;" alt="" />
+                    }
+                    else
+                    {
+                        <video src="@m.FilePath" controls style="width:100%;aspect-ratio:3/4;object-fit:cover;background:#000"></video>
+                    }
+
+                    <div class="d-flex gap-1 mt-2 flex-wrap">
+                        @if (m.Type == HodoomBrand.Models.MediaType.Image)
+                        {
+                            if (m.IsMain)
+                            {
+                                <span class="badge" style="background:var(--gold);color:var(--burgundy-dark)">Main</span>
+                            }
+                            else
+                            {
+                                <form asp-action="SetMain" asp-route-id="@m.Id" method="post">
+                                    <button class="btn btn-sm btn-outline-burgundy" type="submit">Make main</button>
+                                </form>
+                            }
+                        }
+                        <form asp-action="DeleteMedia" asp-route-id="@m.Id" method="post"
+                              onsubmit="return confirm('Delete this file?');">
+                            <button class="btn btn-sm btn-outline-burgundy" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

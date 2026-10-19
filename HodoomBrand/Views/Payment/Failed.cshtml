@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Payment";
+    int orderId = ViewBag.OrderId;
+}
+
+<div class="container py-5 text-center" style="max-width: 620px;">
+    <h2>Payment not completed</h2>
+    <p class="text-muted my-3">@ViewBag.Message</p>
+    <div class="d-flex gap-2 justify-content-center">
+        <a class="btn btn-burgundy" asp-action="Pay" asp-route-id="@orderId">Try again</a>
+        <a class="btn btn-outline-burgundy" asp-controller="Cart" asp-action="Index">Back to cart</a>
+    </div>
+</div>

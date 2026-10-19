@@ -1,0 +1,53 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="auth-wrap">
+    <div class="auth-card">
+        <h2 class="text-center mb-1">Welcome back</h2>
+        <p class="text-center text-muted mb-4">Log in to track your orders</p>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">Password</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" asp-for="Input.RememberMe" />
+                <label asp-for="Input.RememberMe" class="form-check-label">Remember me</label>
+            </div>
+            <button id="login-submit" type="submit" class="btn btn-burgundy w-100">Log in</button>
+        </form>
+
+        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+        {
+            <div class="auth-divider"><span>or</span></div>
+            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                @foreach (var provider in Model.ExternalLogins!)
+                {
+                    <button type="submit" class="btn btn-outline-burgundy w-100 mb-2" name="provider" value="@provider.Name">
+                        Continue with @provider.DisplayName
+                    </button>
+                }
+            </form>
+        }
+
+        <p class="text-center mt-4 mb-0">
+            New here? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,74 @@
+﻿@model HodoomBrand.Models.Product
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="CategoryId" class="form-label">Category</label>
+        @{
+            var cats = ViewBag.Categories as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+            var catList = cats?.ToList() ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+        }
+
+        <select name="CategoryId" class="form-select" required>
+            <option value="">-- Choose category --</option>
+            @foreach (var c in catList)
+            {
+                <option value="@c.Value" selected="@(c.Value == Model.CategoryId.ToString())">@c.Text</option>
+            }
+        </select>
+
+        @if (!catList.Any())
+        {
+            <div class="text-danger small mt-1">
+                No categories found. <a asp-controller="AdminCategories" asp-action="Index">Add a category first</a>.
+            </div>
+        }
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Price" class="form-label">Price (EGP)</label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="DiscountPrice" class="form-label">Discount price (optional)</label>
+        <input asp-for="DiscountPrice" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="StockQuantity" class="form-label">Stock quantity</label>
+        <input asp-for="StockQuantity" class="form-control" />
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Sizes" class="form-label">Sizes (comma separated)</label>
+        <input asp-for="Sizes" class="form-control" placeholder="S,M,L,XL" />
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Colors" class="form-label">Colors (comma separated)</label>
+        <input asp-for="Colors" class="form-control" placeholder="Black,Burgundy,Cream" />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">Images &amp; videos (jpg, png, webp, mp4, webm)</label>
+        <input type="file" name="files" class="form-control" multiple
+               accept=".jpg,.jpeg,.png,.webp,.mp4,.webm" />
+        <small class="text-muted">The first image you upload becomes the main image. Keep each video under 25 MB for now.</small>
+    </div>
+
+    <div class="col-12 form-check ms-2">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label">Visible in the shop</label>
+    </div>
+</div>

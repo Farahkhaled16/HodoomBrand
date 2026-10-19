@@ -1,0 +1,39 @@
+﻿@model List<HodoomBrand.Models.Category>
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="container py-5" style="max-width: 720px;">
+    <h2 class="mb-4">Categories</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="Create" method="post" class="d-flex gap-2 mb-4">
+        <input name="name" class="form-control" placeholder="New category name (e.g. T-Shirts)" required />
+        <button class="btn btn-burgundy" type="submit">Add</button>
+    </form>
+
+    <table class="table bg-white">
+        <thead><tr><th>Name</th><th>Products</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.Name</td>
+                    <td>@c.Products.Count</td>
+                    <td class="text-end">
+                        <form asp-action="Delete" asp-route-id="@c.Id" method="post"
+                              onsubmit="return confirm('Delete this category?');">
+                            <button class="btn btn-sm btn-outline-burgundy" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-controller="AdminProducts" asp-action="Index">&larr; Back to products</a>
+</div>

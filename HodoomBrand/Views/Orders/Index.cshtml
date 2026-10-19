@@ -1,0 +1,32 @@
+﻿@model List<HodoomBrand.Models.Order>
+@using HodoomBrand.Models
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container py-5" style="max-width: 860px;">
+    <h2 class="mb-4">My Orders</h2>
+
+    @if (!Model.Any())
+    {
+        <p class="text-muted">You have no orders yet.</p>
+        <a class="btn btn-burgundy" asp-controller="Shop" asp-action="Index">Start shopping</a>
+    }
+
+    @foreach (var o in Model)
+    {
+        <div class="bg-white border p-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <div>
+                    <b>Order #@o.Id</b>
+                    <span class="badge ms-2" style="background:@(o.Status == OrderStatus.New ? "var(--gold)" : o.Status == OrderStatus.Cancelled ? "#999" : "var(--burgundy)");color:@(o.Status == OrderStatus.New ? "var(--burgundy-dark)" : "#fff")">@o.Status</span>
+                </div>
+                <div class="small text-muted">
+                    @o.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") |
+                    @o.Items.Sum(i => i.Quantity) item(s) | @o.Total.ToString("0.##") EGP
+                </div>
+            </div>
+            <a class="btn btn-sm btn-burgundy" asp-action="Details" asp-route-id="@o.Id">View</a>
+        </div>
+    }
+</div>

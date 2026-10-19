@@ -1,0 +1,33 @@
+﻿@model List<HodoomBrand.Models.Product>
+@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="hero">
+    <div class="container">
+        <h1>BORDO</h1>
+        <p>Deep colors. Bold style. Made to be noticed.</p>
+        <a class="btn btn-gold" asp-controller="Shop" asp-action="Index">Shop Now</a>
+    </div>
+</section>
+
+<div class="container">
+    <div class="section-title">
+        <h2>New Arrivals</h2>
+        <div class="line"></div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="text-center text-muted">Products coming soon.</p>
+    }
+
+    <div class="row g-4">
+        @foreach (var p in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <partial name="_ProductCard" model="p" />
+            </div>
+        }
+    </div>
+</div>

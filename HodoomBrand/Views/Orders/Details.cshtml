@@ -1,0 +1,115 @@
+﻿@model HodoomBrand.Models.Order
+@using HodoomBrand.Models
+@{
+    ViewData["Title"] = "Order #" + Model.Id;
+    bool canCancel = ViewBag.CanCancel;
+    int minutesLeft = ViewBag.MinutesLeft;
+    var labels = new[] { "Placed", "Confirmed", "Shipped", "Delivered" };
+    int stage = Model.Status switch
+    {
+        OrderStatus.New => 0,
+        OrderStatus.Confirmed => 1,
+        OrderStatus.Shipped => 2,
+        OrderStatus.Delivered => 3,
+        _ => -1
+    };
+}
+
+<div class="container py-5" style="max-width: 860px;">
+    <a asp-action="Index">&larr; My orders</a>
+    <h2 class="my-3">Order #@Model.Id</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (Model.Status == OrderStatus.Cancelled)
+    {
+        <div class="alert alert-secondary">
+            This order was cancelled@(Model.CancelledByCustomer ? " by you" : "").
+        </div>
+    }
+    else
+    {
+        <div class="steps">
+            @for (int i = 0; i < labels.Length; i++)
+            {
+                <div class="step @(i < stage ? "done" : "") @(i == stage ? "current" : "")">
+                    <div class="dot">@(i < stage ? "✓" : (i + 1).ToString())</div>
+                    @labels[i]
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.Status == OrderStatus.Confirmed)
+    {
+        <div class="alert alert-success">Your order is confirmed and is being prepared.</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="bg-white border p-4 h-100">
+                <h5>Delivery details</h5>
+                <div>@Model.CustomerName</div>
+                <div>@Model.Phone</div>
+                <div>@Model.Address, @Model.Governorate</div>
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <div class="mt-2"><b>Notes:</b> @Model.Notes</div>
+                }
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="bg-white border p-4 h-100">
+                <h5>Payment</h5>
+                <div>@(Model.PaymentMethod == PaymentMethod.CashOnDelivery ? "Cash on delivery" : "Online payment")</div>
+                <div>Status: @Model.PaymentStatus</div>
+                <div class="small text-muted mt-2">Placed on @Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border p-4 mt-4">
+        <h5>Items</h5>
+        @foreach (var i in Model.Items)
+        {
+            <div class="d-flex justify-content-between border-bottom py-2">
+                <span>
+                    @i.ProductName x@(i.Quantity)
+                    <small class="text-muted">
+                        @if (!string.IsNullOrEmpty(i.Size))
+                        {
+                            <span>@i.Size</span>
+                        }
+                        @if (!string.IsNullOrEmpty(i.Color))
+                        {
+                            <span> / @i.Color</span>
+                        }
+                    </small>
+                </span>
+                <span>@((i.UnitPrice * i.Quantity).ToString("0.##")) EGP</span>
+            </div>
+        }
+        <div class="d-flex justify-content-between mt-3"><span>Subtotal</span><span>@Model.Subtotal.ToString("0.##") EGP</span></div>
+        <div class="d-flex justify-content-between"><span>Shipping</span><span>@Model.ShippingFee.ToString("0.##") EGP</span></div>
+        <div class="d-flex justify-content-between fw-semibold fs-5"><span>Total</span><span>@Model.Total.ToString("0.##") EGP</span></div>
+    </div>
+
+    @if (canCancel)
+    {
+        <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="mt-4"
+              onsubmit="return confirm('Cancel this order?');">
+            <button class="btn btn-outline-burgundy" type="submit">Cancel order (@minutesLeft min left)</button>
+        </form>
+    }
+    else if (Model.Status == OrderStatus.New || Model.Status == OrderStatus.Confirmed)
+    {
+        <p class="text-muted small mt-4">The online cancel window has passed. Please contact us if you need help.</p>
+    }
+</div>

@@ -1,0 +1,47 @@
+﻿@model List<HodoomBrand.Models.Product>
+@{
+    ViewData["Title"] = "Shop";
+    var cats = (List<HodoomBrand.Models.Category>)ViewBag.Categories;
+    int? selected = ViewBag.SelectedCategory;
+}
+
+<div class="container">
+    <div class="section-title">
+        <h2>Shop</h2>
+        <div class="line"></div>
+    </div>
+
+    <div class="d-flex justify-content-between flex-wrap gap-3 mb-4">
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-sm @(selected == null ? "btn-burgundy" : "btn-outline-burgundy")"
+               asp-action="Index">All</a>
+            @foreach (var c in cats)
+            {
+                <a class="btn btn-sm @(selected == c.Id ? "btn-burgundy" : "btn-outline-burgundy")"
+                   asp-action="Index" asp-route-category="@c.Id">@c.Name</a>
+            }
+        </div>
+        <form method="get" class="d-flex gap-2">
+            @if (selected.HasValue)
+            {
+                <input type="hidden" name="category" value="@selected" />
+            }
+            <input name="q" value="@ViewBag.Q" class="form-control" placeholder="Search..." />
+            <button class="btn btn-burgundy btn-sm" type="submit">Go</button>
+        </form>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="text-center text-muted py-5">No products found.</p>
+    }
+
+    <div class="row g-4">
+        @foreach (var p in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <partial name="_ProductCard" model="p" />
+            </div>
+        }
+    </div>
+</div>

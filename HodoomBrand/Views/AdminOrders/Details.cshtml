@@ -1,0 +1,105 @@
+﻿@model HodoomBrand.Models.Order
+@using HodoomBrand.Models
+@{
+    ViewData["Title"] = "Order #" + Model.Id;
+}
+
+<div class="container py-5" style="max-width: 860px;">
+    <a asp-action="Index">&larr; All orders</a>
+    <h2 class="my-3">Order #@Model.Id</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="bg-white border p-4 h-100">
+                <h5>Customer</h5>
+                <div>@Model.CustomerName</div>
+                <div><a href="tel:@Model.Phone">@Model.Phone</a></div>
+                <div><a href="mailto:@Model.Email">@Model.Email</a></div>
+                <div class="mt-2">@Model.Address, @Model.Governorate</div>
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <div class="mt-2"><b>Notes:</b> @Model.Notes</div>
+                }
+                <div class="mt-2 small text-muted">
+                    @(Model.UserId == null ? "Guest" : "Registered user") |
+                    @Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="bg-white border p-4 h-100">
+                <h5>Status</h5>
+                <p class="mb-1">Order: <b>@Model.Status</b></p>
+                <p>Payment: <b>@Model.PaymentMethod</b> (@Model.PaymentStatus)</p>
+
+                @if (Model.ConfirmedAt.HasValue)
+                {
+                    <p class="small text-muted mb-1">Confirmed: @Model.ConfirmedAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")</p>
+                }
+                @if (Model.CancelledAt.HasValue)
+                {
+                    <p class="small text-danger mb-2">
+                        Cancelled @(Model.CancelledByCustomer ? "by the customer" : "by admin"):
+                        @Model.CancelledAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                    </p>
+                }
+
+                @if (Model.Status == OrderStatus.Cancelled)
+                {
+                    <div class="text-muted">This order is cancelled and locked.</div>
+                }
+                else
+                {
+                    <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post">
+                        <select name="status" class="form-select mb-2">
+                            @foreach (OrderStatus s in Enum.GetValues(typeof(OrderStatus)))
+                            {
+                                <option value="@((int)s)" selected="@(s == Model.Status)">@s</option>
+                            }
+                        </select>
+                        <button class="btn btn-burgundy w-100" type="submit"
+                                onclick="return confirm('Change status? The customer will get an email.');">
+                            Update &amp; email customer
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border p-4 mt-4">
+        <h5>Items</h5>
+        @foreach (var i in Model.Items)
+        {
+            <div class="d-flex justify-content-between border-bottom py-2">
+                <span>
+                    @i.ProductName x@(i.Quantity)
+                    <small class="text-muted">
+                        @if (!string.IsNullOrEmpty(i.Size))
+                        {
+                            <span>@i.Size</span>
+                        }
+                        @if (!string.IsNullOrEmpty(i.Color))
+                        {
+                            <span> / @i.Color</span>
+                        }
+                    </small>
+                </span>
+                <span>@((i.UnitPrice * i.Quantity).ToString("0.##")) EGP</span>
+            </div>
+        }
+        <div class="d-flex justify-content-between mt-3"><span>Subtotal</span><span>@Model.Subtotal.ToString("0.##") EGP</span></div>
+        <div class="d-flex justify-content-between"><span>Shipping</span><span>@Model.ShippingFee.ToString("0.##") EGP</span></div>
+        <div class="d-flex justify-content-between fw-semibold fs-5"><span>Total</span><span>@Model.Total.ToString("0.##") EGP</span></div>
+    </div>
+</div>

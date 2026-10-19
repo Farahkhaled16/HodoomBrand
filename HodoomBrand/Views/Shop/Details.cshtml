@@ -1,0 +1,140 @@
+﻿@model HodoomBrand.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+    var sizes = (Model.Sizes ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    var colors = (Model.Colors ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    var media = Model.Media.OrderByDescending(m => m.IsMain).ToList();
+    var first = media.FirstOrDefault();
+}
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-md-6">
+            <div id="mainMedia" class="bg-white border">
+                @if (first == null)
+                {
+                    <div style="aspect-ratio:3/4;background:#eadfd3;"></div>
+                }
+                else if (first.Type == HodoomBrand.Models.MediaType.Image)
+                {
+                    <img src="@first.FilePath" style="width:100%;aspect-ratio:3/4;object-fit:cover;" alt="@Model.Name" />
+                }
+                else
+                {
+                    <video src="@first.FilePath" controls style="width:100%;aspect-ratio:3/4;object-fit:cover;background:#000"></video>
+                }
+            </div>
+
+            @if (media.Count > 1)
+            {
+                <div class="d-flex gap-2 mt-3 flex-wrap">
+                    @foreach (var m in media)
+                    {
+                        <div class="thumb border bg-white" style="width:80px;height:100px;cursor:pointer;overflow:hidden"
+                             data-type="@(m.Type == HodoomBrand.Models.MediaType.Video ? "video" : "image")"
+                             data-src="@m.FilePath">
+                            @if (m.Type == HodoomBrand.Models.MediaType.Image)
+                            {
+                                <img src="@m.FilePath" style="width:100%;height:100%;object-fit:cover;" alt="" />
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center h-100"
+                                     style="background:var(--burgundy);color:var(--gold);font-size:1.6rem">
+                                    &#9658;
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <div class="text-muted small">@Model.Category?.Name</div>
+            <h1 class="mb-3">@Model.Name</h1>
+
+            <div class="mb-3" style="font-size:1.5rem">
+                @if (Model.DiscountPrice.HasValue)
+                {
+                    <span class="price fw-semibold" style="color:var(--burgundy)">@Model.DiscountPrice.Value.ToString("0.##") EGP</span>
+                    <span class="old-price text-muted text-decoration-line-through ms-2" style="font-size:1rem">@Model.Price.ToString("0.##")</span>
+                }
+                else
+                {
+                    <span class="fw-semibold" style="color:var(--burgundy)">@Model.Price.ToString("0.##") EGP</span>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p style="white-space:pre-line">@Model.Description</p>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Error"]</div>
+            }
+
+            @if (Model.StockQuantity <= 0)
+            {
+                <div class="alert alert-secondary">This item is sold out.</div>
+            }
+            else
+            {
+                <form asp-controller="Cart" asp-action="Add" method="post">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+
+                    @if (sizes.Length > 0)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Size</label>
+                            <select name="size" class="form-select" required>
+                                <option value="">-- Choose size --</option>
+                                @foreach (var s in sizes)
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    @if (colors.Length > 0)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Color</label>
+                            <select name="color" class="form-select" required>
+                                <option value="">-- Choose color --</option>
+                                @foreach (var c in colors)
+                                {
+                                    <option value="@c">@c</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    <div class="mb-4" style="max-width:140px">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" class="form-control" />
+                    </div>
+
+                    <button type="submit" class="btn btn-burgundy w-100">Add to cart</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.thumb').forEach(t => {
+            t.addEventListener('click', () => {
+                const box = document.getElementById('mainMedia');
+                const src = t.dataset.src;
+                box.innerHTML = t.dataset.type === 'video'
+                    ? '<video src="' + src + '" controls autoplay style="width:100%;aspect-ratio:3/4;object-fit:cover;background:#000"></video>'
+                    : '<img src="' + src + '" style="width:100%;aspect-ratio:3/4;object-fit:cover;" alt="">';
+            });
+        });
+    </script>
+}

@@ -1,0 +1,103 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Config
+@{
+    ViewData["Title"] = "About";
+    var shipping = Config["Store:ShippingFee"] ?? "60";
+    var window = Config["Store:CancelWindowMinutes"] ?? "60";
+    var email = Config["Store:SupportEmail"];
+}
+
+<section class="hero" style="padding:70px 0">
+    <div class="container">
+        <h1>Our Story</h1>
+        <p>Clothing with character, made to be noticed.</p>
+    </div>
+</section>
+
+<div class="container py-5" style="max-width: 900px;">
+    <div class="text-center mb-5">
+        <h2>Who we are</h2>
+        <div class="section-title" style="margin:10px 0 0"><div class="line"></div></div>
+        <p class="mt-4">
+            BORDO is an Egyptian clothing brand built around one idea: deep, rich colors and quality fabrics
+            that make you feel confident every day. We design pieces that are simple to wear and hard to forget,
+            and we deliver them to your door anywhere in Egypt.
+        </p>
+    </div>
+
+    <div class="row g-4 mb-5 text-center">
+        <div class="col-md-4">
+            <div class="bg-white border p-4 h-100">
+                <h5>Quality first</h5>
+                <p class="mb-0 text-muted">Carefully chosen fabrics and finishing, so every piece lasts.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-white border p-4 h-100">
+                <h5>Bold colors</h5>
+                <p class="mb-0 text-muted">Burgundy, cream, and deep tones that stand out from the crowd.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-white border p-4 h-100">
+                <h5>Easy shopping</h5>
+                <p class="mb-0 text-muted">Pay cash on delivery, and cancel your order within the first @window minutes.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <h2>Delivery &amp; Orders</h2>
+        <div class="section-title" style="margin:10px 0 0"><div class="line"></div></div>
+    </div>
+
+    <div class="accordion mb-5" id="faq">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#f1">How much is shipping?</button>
+            </h2>
+            <div id="f1" class="accordion-collapse collapse show" data-bs-parent="#faq">
+                <div class="accordion-body">A flat @shipping EGP to all governorates in Egypt.</div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f2">How can I pay?</button>
+            </h2>
+            <div id="f2" class="accordion-collapse collapse" data-bs-parent="#faq">
+                <div class="accordion-body">Cash on delivery. Online card payment is coming soon.</div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f3">Can I cancel my order?</button>
+            </h2>
+            <div id="f3" class="accordion-collapse collapse" data-bs-parent="#faq">
+                <div class="accordion-body">
+                    Yes. If you ordered with an account, open <b>My Orders</b> and press cancel within @window minutes of placing the order.
+                    After that, please contact us.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#f4">How do I track my order?</button>
+            </h2>
+            <div id="f4" class="accordion-collapse collapse" data-bs-parent="#faq">
+                <div class="accordion-body">
+                    Log in and open <b>My Orders</b> to see if your order is confirmed, shipped, or delivered.
+                    We also email you every time the status changes. Guest orders get emails only.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center bg-white border p-4">
+        <h5>Contact us</h5>
+        @if (!string.IsNullOrWhiteSpace(email))
+        {
+            <p class="mb-2">Email: <a href="mailto:@email">@email</a></p>
+        }
+        <a class="btn btn-burgundy mt-2" asp-controller="Shop" asp-action="Index">Shop now</a>
+    </div>
+</div>
